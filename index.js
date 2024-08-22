@@ -1,12 +1,12 @@
-const http = require("http");
+import express from "express";
 
+const app = express();
 const port = 3000;
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.end("yo");
+app.get("/", (req, res) => {
+  res.send("yo");
 });
 
-server.listen(port, () => {
+app.listen(port, () => {
   console.log(`listening on ${port}`);
 });
