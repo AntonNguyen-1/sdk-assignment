@@ -1,0 +1,186 @@
+openapi: 3.0.3
+info:
+  title: Institutions Search API
+  version: 1.0.0
+servers:
+- url: http://localhost:3000
+paths:
+  /institutions/search:
+    get:
+      description: "Returns a JSON response containing details for institutions that\
+        \ match the query parameters, up to a maximum of ten institutions per query"
+      operationId: institutionsSearchGET
+      parameters:
+      - description: Search query to filter institutions.
+        explode: true
+        in: query
+        name: query
+        required: true
+        schema:
+          type: string
+        style: form
+      - description: "Specify which country or countries to include institutions from.\
+          \ Possible values include US, GB, ES, NL, FR, IE, CA, DE, IT, PL, DK, NO,\
+          \ SE, EE, LT, LV, PT, BE."
+        explode: true
+        in: query
+        name: country_codes
+        required: true
+        schema:
+          items:
+            type: string
+          minItems: 1
+          type: array
+        style: form
+      - description: "Filter the Institutions based on whether they support all products\
+          \ listed in products. Possible values include assets, auth, balance, employment,\
+          \ identity, income_verification, investments, liabilities, identity_verification,\
+          \ payment_initiation, standing_orders, transactions, transfer."
+        explode: true
+        in: query
+        name: products
+        required: false
+        schema:
+          items:
+            type: string
+          type: array
+        style: form
+      - description: |
+          An optional stringified object to filter /institutions/search results.
+          Example:
+          ```json
+          {
+            "oauth": true,
+            "include_optional_metadata": true,
+            "include_auth_metadata": false,
+            "include_payment_initiation_metadata": false,
+            "payment_initiation": {
+              "payment_id": "some_payment_id",
+              "consent_id": "some_consent_id"
+            }
+          }
+          ```
+        explode: true
+        in: query
+        name: options
+        required: false
+        schema:
+          default: "{\"oauth\":false,\"include_optional_metadata\":false,\"include_auth_metadata\"\
+            :false,\"include_payment_initiation_metadata\":false}"
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_institutions_search_get_200_response'
+          description: Successful response with a list of institutions.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_institutions_search_get_400_response'
+          description: Bad Request - Invalid country_codes parameter
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/_institutions_search_get_400_response'
+          description: Internal Server Error
+      summary: Search for institutions
+      tags:
+      - Institution
+      x-eov-operation-handler: controllers/InstitutionController
+components:
+  schemas:
+    _institutions_search_get_400_response:
+      example:
+        error: error
+      properties:
+        error:
+          type: string
+      type: object
+    _institutions_search_get_200_response_institutions_inner:
+      example:
+        routing_numbers:
+        - routing_numbers
+        - routing_numbers
+        dtc_numbers:
+        - dtc_numbers
+        - dtc_numbers
+        name: name
+        country_codes:
+        - country_codes
+        - country_codes
+        oauth: true
+        institution_id: institution_id
+        products:
+        - products
+        - products
+      properties:
+        country_codes:
+          items:
+            type: string
+          type: array
+        dtc_numbers:
+          items:
+            type: string
+          type: array
+        institution_id:
+          type: string
+        name:
+          type: string
+        oauth:
+          type: boolean
+        products:
+          items:
+            type: string
+          type: array
+        routing_numbers:
+          items:
+            type: string
+          type: array
+      type: object
+    _institutions_search_get_200_response:
+      example:
+        institutions:
+        - routing_numbers:
+          - routing_numbers
+          - routing_numbers
+          dtc_numbers:
+          - dtc_numbers
+          - dtc_numbers
+          name: name
+          country_codes:
+          - country_codes
+          - country_codes
+          oauth: true
+          institution_id: institution_id
+          products:
+          - products
+          - products
+        - routing_numbers:
+          - routing_numbers
+          - routing_numbers
+          dtc_numbers:
+          - dtc_numbers
+          - dtc_numbers
+          name: name
+          country_codes:
+          - country_codes
+          - country_codes
+          oauth: true
+          institution_id: institution_id
+          products:
+          - products
+          - products
+        request_id: request_id
+      properties:
+        institutions:
+          items:
+            $ref: '#/components/schemas/_institutions_search_get_200_response_institutions_inner'
+          type: array
+        request_id:
+          type: string
+      type: object

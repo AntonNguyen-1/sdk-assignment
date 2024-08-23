@@ -22,6 +22,16 @@ const port = process.env.PORT || 3000;
 app.get("/institutions/search", async (req, res) => {
   const { query, country_codes, products, options } = req.query;
 
+  let optionsObject = {};
+  if (options) {
+    try {
+      optionsObject = JSON.parse(options);
+    } catch (error) {
+      console.error("Failed to parse options", error);
+      return res.status(400).send("Invalid options format");
+    }
+  }
+
   const countryCodesArray = Array.isArray(country_codes)
     ? country_codes
     : [country_codes];
@@ -37,14 +47,18 @@ app.get("/institutions/search", async (req, res) => {
     const response = await plaidClient.institutionsSearch({
       query,
       country_codes: countryCodesArray,
-      products: productsArray,
-      options,
+      products: products ? productsArray : null,
+      options: optionsObject,
     });
     res.send(response.data);
   } catch (error) {
-    console.log(error);
+    if (error?.response?.data?.error_message) {
+      res.status(500).json({ error: error.response.data.error_message });
+    } else {
+      console.log(error);
 
-    res.sendStatus(500);
+      res.sendStatus(500);
+    }
   }
 });
 
